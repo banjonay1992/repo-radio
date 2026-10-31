@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-web/
+coverage/
+*.log
+.DS_Store
+.env
+.env.*
+
+# Generated output from running the tool
+*.mid
+*.midi
+*.score.json
+/tracks/
