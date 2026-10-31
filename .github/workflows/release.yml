@@ -1,0 +1,77 @@
+name: Release
+
+# Publishes to npm when a GitHub release is published for a tag such as v0.2.0.
+# It uses npm trusted publishing (OIDC), so there is no npm token in the repository.
+# Publishing stays off until the repository variable NPM_PUBLISH is set to "true",
+# so a release made before trusted publishing is set up on npmjs.com is skipped
+# rather than failing. See CONTRIBUTING.md.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  publish:
+    name: Publish to npm
+    if: vars.NPM_PUBLISH == 'true' && startsWith(github.event.release.tag_name, 'v') && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out the release tag
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Use an npm that supports trusted publishing
+        run: npm install --global npm@^11.5.1
+
+      - name: Check the tag matches package.json
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "v$version" ]; then
+            echo "::error::Release tag $TAG does not match package.json version $version"
+            exit 1
+          fi
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        run: npm publish --provenance --access public
