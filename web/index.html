@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Play the music of a git repository's history." />
+    <title>Repo Radio</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <h1>Repo Radio</h1>
+      <p class="lede">
+        A git history, played back as music. Every commit is one bar: the author picks the instrument,
+        the language picks the scale and the size of the change sets how busy it gets.
+      </p>
+    </header>
+
+    <main>
+      <section class="set" aria-labelledby="track-title">
+        <div class="station">
+          <h2 id="track-title">Nothing tuned in yet</h2>
+          <p id="track-meta">Open a score file or play the demo below.</p>
+        </div>
+
+        <div class="dial" id="dial-wrap">
+          <canvas
+            id="dial"
+            tabindex="0"
+            role="slider"
+            aria-label="Position in the track"
+            aria-valuemin="0"
+            aria-valuemax="0"
+            aria-valuenow="0"
+          ></canvas>
+        </div>
+
+        <div class="controls">
+          <button type="button" id="play" disabled>Play</button>
+          <button type="button" id="stop" disabled>Stop</button>
+          <span class="time" id="time">0:00 / 0:00</span>
+          <label class="volume">
+            Volume
+            <input type="range" id="volume" min="0" max="1" step="0.01" value="0.8" />
+          </label>
+        </div>
+
+        <div class="now" id="now" aria-live="polite"></div>
+      </section>
+
+      <section class="loader" aria-label="Load a score">
+        <label class="file-button">
+          Open a score file
+          <input type="file" id="file" accept=".json,application/json" />
+        </label>
+        <button type="button" id="demo">Play the demo</button>
+        <p class="hint">
+          Make a score with <code>repo-radio ./your-repo --format json</code>, then open the
+          <code>.score.json</code> file here or drop it anywhere on this page. The file is read in your
+          browser and never uploaded.
+        </p>
+        <p class="error" id="error" role="alert"></p>
+      </section>
+
+      <section class="legend" aria-labelledby="legend-title" hidden id="legend">
+        <h2 id="legend-title">Who plays what</h2>
+        <ul id="voices"></ul>
+        <p class="key-help">
+          On the dial, a taller mark is a bigger commit. A dot on top is a merge, a flag is a tag and a
+          mark hanging below the line is a revert. Click the dial to jump, or focus it and use the arrow
+          keys to step between commits.
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
