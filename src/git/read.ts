@@ -38,7 +38,7 @@ function git(repoPath: string, args: string[]): { ok: boolean; stdout: string; s
 /** Check that a path is a git repository with at least one commit on the revision. */
 export function assertRepository(repoPath: string, revision = "HEAD"): void {
   const absolute = resolve(repoPath);
-  let isDirectory = false;
+  let isDirectory: boolean;
   try {
     isDirectory = statSync(absolute).isDirectory();
   } catch {
