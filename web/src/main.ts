@@ -258,8 +258,11 @@ new ResizeObserver(() => resizeCanvas()).observe(els.wrap);
 window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => render());
 
 // ?score=path/to/file.score.json loads a score that sits next to the player.
+// Without it the demo is tuned in, ready to play, so a fresh visit is never empty.
 const scoreUrl = new URLSearchParams(window.location.search).get("score");
-if (scoreUrl) {
+if (!scoreUrl) {
+  load(demoScore());
+} else {
   fetch(scoreUrl)
     .then((response) => {
       if (!response.ok) throw new Error(`The server answered ${response.status} for ${scoreUrl}.`);
