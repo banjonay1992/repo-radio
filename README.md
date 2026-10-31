@@ -1,8 +1,49 @@
 # Repo Radio
 
+[![CI](https://github.com/banjonay1992/repo-radio/actions/workflows/ci.yml/badge.svg)](https://github.com/banjonay1992/repo-radio/actions/workflows/ci.yml)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+
 Repo Radio turns the history of a git repository into a piece of music. You point it at a repository and it writes a standard MIDI file and a JSON score. The score can be played in a small web player that draws the commits on a radio-style dial while they play.
 
 Every commit becomes one bar. Who wrote it decides the instrument, the main language of the change decides the scale, the size of the change decides how busy and loud the bar is, and the time of day the author committed shifts the mood: late-night work plays darker and lower, mornings brighter and higher. Merges, tags and reverts each get their own little motif. The output is deterministic, so the same repository with the same options always gives the same track, byte for byte.
+
+**Status:** v0.1.0, early but working. The command line tool and the web player both work end to end and are tested in CI on Node 22 and 24. It is for turning a project's history into a short track to go with a release, a retrospective or a demo. It is not on npm and the player is not hosted yet; both are planned for v0.2 (see the [roadmap](ROADMAP.md)).
+
+![The Repo Radio web player playing the built-in demo track, with the needle part way along the dial and the current commit shown underneath](docs/screenshots/player-demo-light.png)
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/player-demo-dark.png" alt="The same player in the dark theme, mid-way through the demo track"></td>
+    <td width="50%"><img src="docs/screenshots/player-own-history.png" alt="The player with a score made from Repo Radio's own git history"></td>
+  </tr>
+  <tr>
+    <td>The demo track in the dark theme.</td>
+    <td>This repository's own history. The two voices are one author under two email addresses, which a <code>.mailmap</code> would merge.</td>
+  </tr>
+</table>
+
+![Terminal output from running repo-radio on its own repository, which writes a MIDI file and a JSON score](docs/screenshots/cli-output.png)
+
+The screenshots are real captures of a local build. The demo track is a made-up project with invented authors, and real author names are replaced with aliases by default.
+
+## Try it
+
+You need Node 22.12 or later and git.
+
+```sh
+git clone https://github.com/banjonay1992/repo-radio.git
+cd repo-radio
+npm install
+npm run build
+
+# Make a track from Repo Radio's own history
+node dist/cli.js . --out tracks/repo-radio
+
+# Start the player, then open tracks/repo-radio.score.json in it
+npm run dev:web
+```
+
+The player opens with the demo track ready, so you can press Play straight away before making a score of your own. Open `tracks/repo-radio.mid` in any DAW or General MIDI player to hear the full arrangement.
 
 ## Who it is for
 
@@ -27,7 +68,7 @@ There is no machine learning or AI anywhere in it. The music comes from lookup t
 Repo Radio is not on npm yet, so install it from source. You need Node 22.12 or later and git.
 
 ```sh
-git clone <this repository> repo-radio
+git clone https://github.com/banjonay1992/repo-radio.git
 cd repo-radio
 npm install
 npm run build
@@ -88,7 +129,7 @@ Run it locally with:
 npm run dev:web
 ```
 
-Open the address Vite prints, then either open a `.score.json` file with the button or drop one on the page. "Play the demo" composes a made-up project in the browser so you can hear it straight away. The file is read in your browser and never uploaded.
+Open the address Vite prints. The player starts with a demo track tuned in, composed in the browser from a made-up project, so you can press Play straight away. To hear your own repository, open a `.score.json` file with the button or drop one on the page. The file is read in your browser and never uploaded.
 
 `npm run build` also writes a static copy of the player to `dist-web/`, which works from any folder or static host. If you put a score next to it you can load it with `?score=my-project.score.json` in the address.
 
@@ -118,21 +159,46 @@ The code follows the same steps as the table: [`src/git`](src/git) reads and par
 
 ## Privacy
 
-By default the output uses friendly aliases such as "Teal Heron" instead of author names, and email addresses are never written out. Each alias comes from a hash of the author's email, so it stays the same between runs. This keeps names out of casual view but it is not anonymisation: anyone with access to the repository can match aliases to people. Pass `--show-authors` to use real names.
+By default the output uses friendly aliases such as "Teal Heron" instead of author names, and email addresses are never written out. Each alias comes from a hash of the author's email, so it stays the same between runs. This keeps names out of casual view but it is not anonymisation: anyone with access to the repository can match aliases to people. Pass `--show-authors` to use real names. A `.mailmap` file in the repository is respected, so you can merge or rename identities before they reach the score.
 
 Commit subjects are included in the JSON score so the player can show them. Pass `--hide-subjects` to leave them out. The repository's folder name is used as the title unless you pass `--title`.
 
 ## Limitations
 
-- Git does not report line counts for merge commits by default, so merges play the quietest phrase plus their motif.
+- Git does not report line counts for merge commits by default, so merges play the quietest phrase plus their motif ([#4](https://github.com/banjonay1992/repo-radio/issues/4)).
 - With more than eight authors, instruments are shared.
+- Someone who committed under two email addresses counts as two authors. Repo Radio reads names and emails through git's `.mailmap`, so adding one to the repository merges them.
 - One bar per commit means long histories make long tracks: 300 commits at 120 bpm is ten minutes. `--max-commits` keeps the most recent commits, and `--since` and `--until` narrow the range.
-- The whole `git log` output is read into memory, which is fine for most projects but slow for very large ones.
-- Renames are counted as a deletion plus an addition, which can make a rename look like a big change.
+- The whole `git log` output is read into memory, which is fine for most projects but slow for very large ones ([#2](https://github.com/banjonay1992/repo-radio/issues/2)).
+- Renames are counted as a deletion plus an addition, which can make a rename look like a big change ([#10](https://github.com/banjonay1992/repo-radio/issues/10)).
 - The time of day comes from the time zone recorded in each commit. Machines set to UTC will be read as UTC.
 - Revert detection relies on the subject that `git revert` writes by default.
 - The web player's sound is deliberately simple oscillators and filtered noise. For nicer sound, load the MIDI file into a DAW.
-- The player's audio and drawing code is not covered by automated browser tests yet. Its timing and layout helpers are.
+- The player's audio and drawing code is not covered by automated browser tests yet. Its timing and layout helpers are ([#1](https://github.com/banjonay1992/repo-radio/issues/1)).
+
+## Deploying the web player
+
+The player is a static site with no server side, so it can be hosted anywhere that serves files. It opens with the demo track loaded, and visitors open their own score files locally in the browser.
+
+To host it on Cloudflare Pages with Git integration, create a Pages project connected to this repository with these settings:
+
+| Setting | Value |
+| --- | --- |
+| Production branch | `main` |
+| Framework preset | None |
+| Build command | `npm run build:web` |
+| Build output directory | `dist-web` |
+| Root directory | leave empty (the repository root) |
+| Node version | picked up from `.nvmrc` (22), or set `NODE_VERSION=22` |
+
+Cloudflare installs the dependencies with `npm ci` before building. The build copies [`web/public/_headers`](web/public/_headers) into the output, which sets long caching for the hashed assets and a few safe response headers. Pull requests get their own preview URLs. Hosting is tracked in [#7](https://github.com/banjonay1992/repo-radio/issues/7).
+
+To try the static build locally first:
+
+```sh
+npm run build:web
+npx vite preview --config web/vite.config.ts
+```
 
 ## Development
 
@@ -144,7 +210,11 @@ npm test            # Vitest: unit tests plus integration tests on generated git
 npm run build       # dist/ for the CLI and dist-web/ for the player
 ```
 
-The integration tests create temporary git repositories with scripted commits by invented people, so no real history or personal data is used. See [CONTRIBUTING.md](CONTRIBUTING.md) for more and [ROADMAP.md](ROADMAP.md) for what is planned.
+The integration tests create temporary git repositories with scripted commits by invented people, so no real history or personal data is used. See [CONTRIBUTING.md](CONTRIBUTING.md) for more and [ROADMAP.md](ROADMAP.md) for what is planned. Planned work is tracked as [GitHub issues](https://github.com/banjonay1992/repo-radio/issues) under the v0.2, v0.3 and Later milestones.
+
+## Releases
+
+Changes are listed in [CHANGELOG.md](CHANGELOG.md) and each version is a [GitHub release](https://github.com/banjonay1992/repo-radio/releases). Publishing a release runs [`.github/workflows/release.yml`](.github/workflows/release.yml), which tests the tagged code and publishes it to npm with provenance through trusted publishing. That step is switched off until npm is set up; [CONTRIBUTING.md](CONTRIBUTING.md#how-releases-work) explains the process.
 
 ## Licence
 
