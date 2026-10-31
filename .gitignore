@@ -12,3 +12,6 @@ coverage/
 *.midi
 *.score.json
 /tracks/
+
+# Local helper scripts and scratch output
+/.local/
