@@ -4,6 +4,14 @@
   "description": "Turn a git repository's history into music: a MIDI file, a JSON score and a small web player.",
   "license": "MIT",
   "author": "Nathan Cole (NAY Productions)",
+  "homepage": "https://github.com/banjonay1992/repo-radio#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/banjonay1992/repo-radio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/banjonay1992/repo-radio/issues"
+  },
   "type": "module",
   "bin": {
     "repo-radio": "dist/cli.js"
@@ -18,7 +26,9 @@
   },
   "files": [
     "dist",
+    "!dist/**/*.map",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "engines": {
@@ -37,10 +47,14 @@
   },
   "keywords": [
     "git",
+    "git-history",
     "midi",
     "music",
+    "generative-music",
     "sonification",
-    "cli"
+    "web-audio",
+    "cli",
+    "typescript"
   ],
   "devDependencies": {
     "@eslint/js": "^10.0.1",
