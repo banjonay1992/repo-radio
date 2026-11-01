@@ -14,6 +14,10 @@ export interface ReadOptions {
   until?: string;
   /** Keep only the most recent N commits. */
   maxCommits?: number;
+  /** Follow only the first parent of merge commits. */
+  firstParent?: boolean;
+  /** Omit merge commits. */
+  noMerges?: boolean;
 }
 
 const MAX_BUFFER = 512 * 1024 * 1024;
@@ -78,6 +82,8 @@ export function buildLogArgs(options: ReadOptions): string[] {
     "--reverse",
   ];
   if (options.maxCommits !== undefined) args.push(`--max-count=${options.maxCommits}`);
+  if (options.firstParent) args.push("--first-parent");
+  if (options.noMerges) args.push("--no-merges");
   if (options.since) args.push(`--since=${options.since}`);
   if (options.until) args.push(`--until=${options.until}`);
   args.push("--end-of-options", options.revision ?? "HEAD", "--");

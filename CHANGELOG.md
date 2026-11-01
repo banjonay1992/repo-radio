@@ -4,6 +4,10 @@ All notable changes to this project are recorded here. The format follows [Keep 
 
 ## [Unreleased]
 
+### Added
+
+- `--first-parent` and `--no-merges` options to control which commits are read from git history.
+
 ## [0.1.0] - 2026-10-31
 
 ### Added

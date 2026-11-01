@@ -108,6 +108,8 @@ Every option:
       --since <date>    Only commits after this date, e.g. 2024-01-01
       --until <date>    Only commits before this date
   -n, --max-commits <n> Use the most recent n commits, 0 for all (default: 300)
+      --first-parent    Follow only the first parent of merge commits
+      --no-merges       Omit merge commits
   -t, --tempo <bpm>     Tempo from 40 to 240 (default: 120)
   -k, --key <note>      Root note, e.g. C, F#, Bb (default: C)
   -s, --seed <text>     Seed for melodic variation (default: repo-radio)
