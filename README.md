@@ -7,7 +7,7 @@ Repo Radio turns the history of a git repository into a piece of music. You poin
 
 Every commit becomes one bar. Who wrote it decides the instrument, the main language of the change decides the scale, the size of the change decides how busy and loud the bar is, and the time of day the author committed shifts the mood: late-night work plays darker and lower, mornings brighter and higher. Merges, tags and reverts each get their own little motif. The output is deterministic, so the same repository with the same options always gives the same track, byte for byte.
 
-**Status:** v0.1.0, early but working. The command line tool and the web player both work end to end and are tested in CI on Node 22 and 24. It is for turning a project's history into a short track to go with a release, a retrospective or a demo. It is not on npm and the player is not hosted yet; both are planned for v0.2 (see the [roadmap](ROADMAP.md)).
+**Status:** v0.1.0, early but working. The command line tool and the web player both work end to end and are tested in CI on Node 22 and 24. It is for turning a project's history into a short track to go with a release, a retrospective or a demo. The web player is live at **https://repo-radio.pages.dev** with a demo track. It is not on npm yet; that is planned for v0.2 (see the [roadmap](ROADMAP.md)).
 
 ![The Repo Radio web player playing the built-in demo track, with the needle part way along the dial and the current commit shown underneath](docs/screenshots/player-demo-light.png)
 
