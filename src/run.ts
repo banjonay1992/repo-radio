@@ -34,6 +34,8 @@ Options:
       --until <date>    Only commits before this date
   -n, --max-commits <n> Use the most recent n commits, 0 for all
                         (default: ${DEFAULT_MAX_COMMITS})
+      --first-parent    Follow only the first parent of merge commits
+      --no-merges       Omit merge commits
   -t, --tempo <bpm>     Tempo from 40 to 240 (default: ${DEFAULT_TEMPO})
   -k, --key <note>      Root note, e.g. C, F#, Bb (default: ${DEFAULT_KEY})
   -s, --seed <text>     Seed for melodic variation (default: ${DEFAULT_SEED})
@@ -117,6 +119,8 @@ export async function run(argv: string[], io: Io = defaultIo): Promise<number> {
         since: { type: "string" },
         until: { type: "string" },
         "max-commits": { type: "string", short: "n" },
+        "first-parent": { type: "boolean", default: false },
+        "no-merges": { type: "boolean", default: false },
         tempo: { type: "string", short: "t" },
         key: { type: "string", short: "k" },
         seed: { type: "string", short: "s" },
@@ -158,6 +162,8 @@ export async function run(argv: string[], io: Io = defaultIo): Promise<number> {
       since: values.since,
       until: values.until,
       maxCommits: maxCommits === 0 ? undefined : maxCommits,
+      firstParent: values["first-parent"],
+      noMerges: values["no-merges"],
       showAuthors: values["show-authors"],
       tempo,
       key,

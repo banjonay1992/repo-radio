@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync } from "node:fs";
+﻿import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -60,6 +60,47 @@ describe("reading a scripted repository", () => {
   it("filters by date", () => {
     const commits = readCommits(repo.dir, { since: "2024-01-04T00:00:00Z", until: "2024-01-06T00:00:00Z" });
     expect(commits.map((c) => c.subject)).toEqual(["Write the guide", "Tidy main", "Merge branch 'docs'"]);
+  });
+
+  it("follows only first parents", () => {
+    const commits = readCommits(repo.dir, { firstParent: true });
+    expect(commits.map((commit) => commit.subject)).toEqual([
+      "Initial commit",
+      "Add main entry point",
+      "Add helpers",
+      "Tidy main",
+      "Merge branch 'docs'",
+      "Add experimental flag",
+      'Revert "Add experimental flag"',
+      "Add logo and café notes",
+    ]);
+  });
+
+  it("omits merge commits", () => {
+    const commits = readCommits(repo.dir, { noMerges: true });
+    expect(commits.map((commit) => commit.subject)).toEqual([
+      "Initial commit",
+      "Add main entry point",
+      "Add helpers",
+      "Write the guide",
+      "Tidy main",
+      "Add experimental flag",
+      'Revert "Add experimental flag"',
+      "Add logo and café notes",
+    ]);
+  });
+
+  it("supports first-parent and no-merges together", () => {
+    const commits = readCommits(repo.dir, { firstParent: true, noMerges: true });
+    expect(commits.map((commit) => commit.subject)).toEqual([
+      "Initial commit",
+      "Add main entry point",
+      "Add helpers",
+      "Tidy main",
+      "Add experimental flag",
+      'Revert "Add experimental flag"',
+      "Add logo and café notes",
+    ]);
   });
 });
 
